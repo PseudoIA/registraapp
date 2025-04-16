@@ -1,9 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Añadido
+import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart'; // Verifica ruta
+import 'package:registraap/src/features/auth/presentation/screens/ventas_diarias_screen.dart'; // Verifica ruta
+import 'dart:async'; // Para Future
 // Ajusta la ruta si es necesario
 
-void main() {
+void main() async {
+  // Asegura que los bindings de Flutter estén listos antes de usar plugins como SharedPreferences
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  // La función que comprueba SharedPreferences
+  Future<int?> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Devuelve el userId guardado, o null si no existe la clave 'userId'
+    return prefs.getInt('userId');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // FutureBuilder ejecuta el future y reconstruye la UI según el estado
+    return FutureBuilder<int?>(
+      future: _checkLoginStatus(), // El Future que queremos ejecutar
+      builder: (context, snapshot) {
+        // snapshot contiene el estado del Future
+
+        // Mientras el Future está esperando (cargando SharedPreferences)
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Muestra un indicador de carga simple
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        // Si hubo un error al leer SharedPreferences
+        else if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text('Error al cargar estado de sesión')),
+          );
+        }
+        // Si el Future completó y SÍ tiene datos (y no son null) -> Usuario logueado
+        else if (snapshot.hasData && snapshot.data != null) {
+          print(
+            'Usuario logueado encontrado (ID: ${snapshot.data}), mostrando VentasDiariasScreen',
+          );
+          return const VentasDiariasScreen(); // Ir a la pantalla principal
+        }
+        // Si el Future completó pero NO tiene datos o son null -> No hay sesión
+        else {
+          print('No se encontró sesión de usuario, mostrando BienvenidaScreen');
+          return const BienvenidaScreen(); // Ir a la pantalla de bienvenida/login
+        }
+      },
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -38,7 +98,7 @@ class MyApp extends StatelessWidget {
           bodySmall: TextStyle(color: Colors.white),
         ),
       ),
-      home: const BienvenidaScreen(),
+      home: const AuthWrapper(), // <-- CAMBIADO AQUÍ
     );
   }
 }

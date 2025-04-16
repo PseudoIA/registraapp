@@ -4,6 +4,8 @@ import 'package:registraap/src/core/data/models/local_database.dart';
 import 'dart:convert'; // Para utf8.encode
 import 'package:crypto/crypto.dart'; // Para sha256
 import 'package:drift/drift.dart' hide Column;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:registraap/src/features/auth/presentation/screens/ventas_diarias_screen.dart';
 // Importamos nuestro modelo de Usuario para usar el Enum RolUsuario
 
 class RegistroScreen extends StatefulWidget {
@@ -182,9 +184,16 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   final rol = _selectedRol;
                   final BuildContext currentContext =
                       context; // Captura context ANTES de async gaps
-
                   FocusScope.of(currentContext).unfocus(); // Oculta teclado
 
+                  final NavigatorState navigator = Navigator.of(
+                    currentContext,
+                  ); // <-- ¡Probablemente falta esta línea!
+
+                  final ScaffoldMessengerState scaffoldMessenger =
+                      ScaffoldMessenger.of(
+                        currentContext,
+                      ); // <-- Y esta para los SnackBars
                   // --- 2. Validación ---
                   // (La misma lógica de validación que ya tenías...)
                   if (nombre.isEmpty) {
@@ -271,21 +280,47 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     );
 
                     // --- 6. Feedback y Navegación ---
-                    // Importante: Volver a verificar 'mounted' DESPUÉS de un 'await'
-                    if (!currentContext.mounted) return;
-
-                    showSuccessSnackBar(
-                      currentContext,
-                      '¡Registro exitoso! ID: $generatedId',
+                    // --- GUARDAR SESIÓN ---
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setInt(
+                      'userId',
+                      generatedId,
+                    ); // Guardamos el ID del NUEVO usuario
+                    print(
+                      'ID de usuario $generatedId guardado en SharedPreferences tras registro.',
                     );
 
-                    Future.delayed(const Duration(seconds: 2), () {
+                    // --- FEEDBACK Y NAVEGACIÓN DIRECTA A HOME ---
+                    if (!currentContext.mounted) return; // Re-check mounted
+
+                    // Mostramos éxito ANTES de navegar
+                    showSuccessSnackBar(
+                      currentContext,
+                      '¡Registro exitoso! Iniciando sesión...',
+                    );
+
+                    // Esperamos un poquito para el SnackBar y luego NAVEGAMOS REEMPLAZANDO
+                    Future.delayed(const Duration(milliseconds: 1500), () {
+                      // Menor espera
                       if (currentContext.mounted) {
-                        Navigator.pop(
-                          currentContext,
-                        ); // Volver a la pantalla anterior
+                        // Reemplaza TODA la pila de navegación actual con la pantalla principal
+                        navigator.pushAndRemoveUntil(
+                          // <-- Usamos esto para limpiar la pila
+                          MaterialPageRoute(
+                            builder: (context) => const VentasDiariasScreen(),
+                          ),
+                          (Route<dynamic> route) =>
+                              false, // Elimina todas las rutas anteriores
+                        );
+                        /* Alternativa más simple si no importa limpiar la pila:
+                        navigator.pushReplacement(
+                          MaterialPageRoute(builder: (context) => const VentasDiariasScreen()),
+                        );
+                        */
+                        // YA NO USAMOS Navigator.pop(currentContext);
                       }
                     });
+                    // ***** FIN CAMBIOS *****
                   } catch (e, stacktrace) {
                     // --- Manejo de Errores ---
                     print('Error al insertar usuario: $e');
