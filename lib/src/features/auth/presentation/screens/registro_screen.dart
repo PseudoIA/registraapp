@@ -5,7 +5,7 @@ import 'dart:convert'; // Para utf8.encode
 import 'package:crypto/crypto.dart'; // Para sha256
 import 'package:drift/drift.dart' hide Column;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:registraap/src/features/auth/presentation/screens/ventas_diarias_screen.dart';
+import 'package:registraap/src/features/shell/presentation/screens/main_shell_screen.dart';
 // Importamos nuestro modelo de Usuario para usar el Enum RolUsuario
 
 class RegistroScreen extends StatefulWidget {
@@ -307,7 +307,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         navigator.pushAndRemoveUntil(
                           // <-- Usamos esto para limpiar la pila
                           MaterialPageRoute(
-                            builder: (context) => const VentasDiariasScreen(),
+                            builder:
+                                (context) =>
+                                    const MainShellScreen(), // <-- Asegúrate que sea MainShellScreen
                           ),
                           (Route<dynamic> route) =>
                               false, // Elimina todas las rutas anteriores

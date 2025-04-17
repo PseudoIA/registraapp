@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart';
+import 'dart:async'; // Para Future
 import 'package:flutter/material.dart';
+import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Añadido
 import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart'; // Verifica ruta
-import 'package:registraap/src/features/auth/presentation/screens/ventas_diarias_screen.dart'; // Verifica ruta
-import 'dart:async'; // Para Future
+
+import 'package:registraap/src/features/shell/presentation/screens/main_shell_screen.dart';
 // Ajusta la ruta si es necesario
 
 void main() async {
@@ -54,7 +55,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           print(
             'Usuario logueado encontrado (ID: ${snapshot.data}), mostrando VentasDiariasScreen',
           );
-          return const VentasDiariasScreen(); // Ir a la pantalla principal
+          return const MainShellScreen(); // Ir a la pantalla principal
         }
         // Si el Future completó pero NO tiene datos o son null -> No hay sesión
         else {

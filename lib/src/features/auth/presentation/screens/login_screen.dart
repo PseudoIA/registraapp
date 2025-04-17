@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart'; // Para sha256
 import 'package:shared_preferences/shared_preferences.dart'; // Para guardar sesión
 import 'package:registraap/src/core/data/models/local_database.dart'; // Para 'database' y 'Usuario'
 // Importa la pantalla placeholder que acabamos de crear
-import 'package:registraap/src/features/auth/presentation/screens/ventas_diarias_screen.dart';
+import 'package:registraap/src/features/shell/presentation/screens/main_shell_screen.dart';
 
 // Importa la función showErrorSnackBar que definimos en RegistroScreen (o cópiala aquí)
 // Podríamos moverla a un archivo de utilidades común más adelante.
@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     navigator.pushReplacement(
                       // <-- pushReplacement
                       MaterialPageRoute(
-                        builder: (context) => const VentasDiariasScreen(),
+                        builder: (context) => const MainShellScreen(),
                       ),
                     );
                   } else {
