@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Añadido
 import 'package:registraap/src/features/auth/presentation/screens/bienvenida_screen.dart'; // Verifica ruta
-
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:registraap/src/features/shell/presentation/screens/main_shell_screen.dart';
 // Ajusta la ruta si es necesario
 
-void main() async {
+Future<void> main() async {
   // Asegura que los bindings de Flutter estén listos antes de usar plugins como SharedPreferences
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es_ES', null);
+  print('Formato de fecha inicializado para es_ES.');
   runApp(const MyApp());
 }
 

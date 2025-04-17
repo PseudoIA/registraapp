@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart'; // Necesario para usar Color
+
 // Define los tipos posibles de venta.
 enum TipoVenta { efectivo, digital }
 
@@ -31,4 +33,42 @@ class Venta {
   });
 
   // Aquí podríamos añadir métodos después (ej: toJson, fromJson)
+}
+
+extension TipoVentaHelper on TipoVenta {
+  static String enumToString(TipoVenta tipo) {
+    switch (tipo) {
+      case TipoVenta.efectivo:
+        return 'Efectivo';
+      case TipoVenta.digital:
+        return 'Digital';
+    }
+  }
+}
+
+// --- Helper para EstadoVenta ---
+// Añade esta extensión al final del archivo venta.dart
+extension EstadoVentaHelper on EstadoVenta {
+  // SIN prefijo aquí
+  static String enumToString(EstadoVenta estado) {
+    // SIN prefijo aquí
+    switch (estado) {
+      case EstadoVenta.normal: // SIN prefijo aquí
+        return 'Normal';
+      case EstadoVenta.modificada: // SIN prefijo aquí
+        return 'Modificada';
+      // Añadir default o error si el enum crece
+    }
+  }
+
+  // Helper para obtener un color representativo
+  static Color getColor(EstadoVenta estado) {
+    // SIN prefijo aquí
+    switch (estado) {
+      case EstadoVenta.normal: // SIN prefijo aquí
+        return Colors.black87; // O un verde claro
+      case EstadoVenta.modificada: // SIN prefijo aquí
+        return Colors.orange.shade800;
+    }
+  }
 }

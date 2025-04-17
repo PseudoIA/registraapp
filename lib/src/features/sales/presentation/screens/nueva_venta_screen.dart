@@ -112,11 +112,16 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
       // Insertar en DB
       final generatedId = await database.insertVenta(companion);
       print('Venta guardada con ID: $generatedId');
+      // --- ¡NUEVA LÍNEA! ---
+      // Notifica a los listeners que la lista de ventas ha cambiado.
+      ventasUpdateNotifier.value++;
+      // --- FIN NUEVA LÍNEA ---
 
       if (!currentContext.mounted) return;
       _showSnackBar(currentContext, '¡Venta guardada exitosamente!');
       // Cierra esta PANTALLA y vuelve a la anterior (VentasDiariasScreen)
-      navigator.pop();
+
+      navigator.pop(true);
     } catch (e, stacktrace) {
       print('Error al guardar venta: $e');
       print(stacktrace);

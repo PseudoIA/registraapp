@@ -62,13 +62,19 @@ class _MainShellScreenState extends State<MainShellScreen> {
         builder: (context) => NuevaVentaScreen(tipoVenta: tipo),
       ),
     );
+
+    // --- ¡ESTA ES LA LÓGICA CLAVE AHORA! ---
+    // Verificamos si el widget sigue montado DESPUÉS del await
+    // Y si el resultado de pop() fue 'true' (venta exitosa)
     if (result == true && context.mounted) {
       print(
-        'Venta guardada, se debería refrescar la lista si estamos en esa pestaña...',
+        'Venta guardada. Forzando navegación a la pestaña Ventas (índice 1).',
       );
-      // TODO: Implementar refresco real (posiblemente usando State Management)
-      // Si _selectedIndex es 1 (Ventas Hoy), forzar un refresh de ListaVentasDiariasScreen
+      // Llamamos a la función que cambia el índice de la pestaña
+      // para asegurarnos de que se muestre ListaVentasDiariasScreen.
+      _onItemTapped(1);
     }
+    // --- FIN DE LA LÓGICA CLAVE ---
   }
 
   void _onAddVentaPressed() async {
@@ -79,6 +85,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         return const SeleccionarTipoVentaDialog();
       },
     );
+
     if (!currentContext.mounted) return;
     if (selectedType != null) {
       await _mostrarFormularioVenta(currentContext, selectedType);
@@ -184,11 +191,13 @@ class _MainShellScreenState extends State<MainShellScreen> {
             icon: Icon(Icons.receipt_long_outlined),
             label: 'Ventas', // Etiqueta más corta
           ),
+          // --- AÑADE ESTE WIDGET ---
           NavigationDestination(
-            selectedIcon: Icon(Icons.settings),
-            icon: Icon(Icons.settings_outlined),
-            label: 'Ajustes',
+            selectedIcon: Icon(Icons.settings), // Icono seleccionado
+            icon: Icon(Icons.settings_outlined), // Icono normal
+            label: 'Ajustes', // Etiqueta
           ),
+          // --- FIN WIDGET AÑADIDO ---
         ],
       ),
       // Botón flotante para añadir venta

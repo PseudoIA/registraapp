@@ -11,6 +11,7 @@ import 'package:sqlite3/sqlite3.dart'; // Bindings SQLite
 // Importar modelos
 import 'package:registraap/src/core/data/models/usuario.dart'; // Asegúrate que la ruta es correcta
 import 'package:registraap/src/core/data/models/venta.dart'; // Asegúrate que la ruta es correcta
+import 'package:flutter/foundation.dart';
 // 2. LUEGO va la directiva part:
 part 'local_database.g.dart';
 
@@ -156,6 +157,7 @@ class AppDatabase extends _$AppDatabase {
   // TODO: Más métodos (get by id, update, delete...)
 } // --- Fin Clase AppDatabase ---
 
+final ValueNotifier<int> ventasUpdateNotifier = ValueNotifier(0);
 // --- ¡ASEGÚRATE DE TENER ESTA FUNCIÓN HELPER! ---
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
