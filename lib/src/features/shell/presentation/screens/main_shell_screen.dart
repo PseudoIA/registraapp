@@ -1,8 +1,10 @@
+// src/features/shell/presentation/screens/main_shell_screen.dart
+// --- VERSIÓN CORREGIDA CON GlobalKey INTEGRADO ---
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- Imports de las Pantallas de cada Sección ---
-// --- Pantallas principales ---
 import 'package:registraap/src/features/home/presentation/screens/dashboard_screen.dart';
 import 'package:registraap/src/features/sales/presentation/screens/lista_ventas_diarias_screen.dart';
 import 'package:registraap/src/settings/presentation/screens/configuracion_screen.dart';
@@ -23,39 +25,46 @@ class MainShellScreen extends StatefulWidget {
 }
 
 class _MainShellScreenState extends State<MainShellScreen> {
-  int _selectedIndex = 0; // Índice de la pestaña activa
-  static const List<Widget> _widgetOptions = <Widget>[
-    DashboardScreen(), // Índice 0 (antes VentasDiariasScreen)
-    ListaVentasDiariasScreen(), // Índice 1 (la nueva pantalla de lista)
-    ConfiguracionScreen(), // Índice 2 (el nuevo placeholder)
-  ];
+  int _selectedIndex = 0; // Índice de la pestaña activa (Solo una vez)
 
-  static const List<String> _screenTitles = <String>[
-    'Inicio', // Título para DashboardScreen
-    'Ventas del Día', // Título para ListaVentasDiariasScreen
-    'Ajustes', // Título para ConfiguracionScreen
-  ];
-  // Lista de las pantallas que se mostrarán en el body
-  static const List<Widget> _screens = <Widget>[
-    DashboardScreen(), // Índice 0
-    ListaVentasDiariasScreen(), // Índice 1
-    ConfiguracionScreen(), // Índice 2
-  ];
+  // --- GlobalKey para el Scaffold principal ---
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Cambia el índice seleccionado al tocar la barra inferior
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  // Lista de widgets para el IndexedStack (inicializada en initState)
+  late final List<Widget> _widgetOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializamos la lista de widgets aquí, pasando la llave
+    _widgetOptions = <Widget>[
+      // Asegúrate de que DashboardScreen acepte 'scaffoldKey'
+      DashboardScreen(scaffoldKey: _scaffoldKey),
+      // TODO: Modifica ListaVentasDiariasScreen para aceptar y usar la llave
+      const ListaVentasDiariasScreen(/* scaffoldKey: _scaffoldKey */),
+      // TODO: Modifica ConfiguracionScreen para aceptar y usar la llave
+      const ConfiguracionScreen(/* scaffoldKey: _scaffoldKey */),
+    ];
   }
 
-  // --- Lógica para mostrar diálogos de Nueva Venta ---
+  // Cambia el índice seleccionado al tocar la barra inferior o el drawer
+  void _onItemTapped(int index) {
+    // Validar índice antes de actualizar estado
+    if (index >= 0 && index < _widgetOptions.length) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    } else {
+      print("Error: Intento de navegar a índice inválido en MainShell: $index");
+    }
+  }
+
+  // --- Lógica para mostrar diálogos de Nueva Venta (Sin cambios) ---
   Future<void> _mostrarFormularioVenta(
     BuildContext context,
     TipoVenta tipo,
   ) async {
     if (!context.mounted) return;
-    // Navega a la pantalla completa del formulario
     final result = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
@@ -63,22 +72,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
       ),
     );
 
-    // --- ¡ESTA ES LA LÓGICA CLAVE AHORA! ---
-    // Verificamos si el widget sigue montado DESPUÉS del await
-    // Y si el resultado de pop() fue 'true' (venta exitosa)
     if (result == true && context.mounted) {
       print(
         'Venta guardada. Forzando navegación a la pestaña Ventas (índice 1).',
       );
-      // Llamamos a la función que cambia el índice de la pestaña
-      // para asegurarnos de que se muestre ListaVentasDiariasScreen.
-      _onItemTapped(1);
+      _onItemTapped(1); // Asegura estar en la pestaña de ventas
     }
-    // --- FIN DE LA LÓGICA CLAVE ---
   }
 
   void _onAddVentaPressed() async {
-    final BuildContext currentContext = context;
+    final BuildContext currentContext = context; // Captura segura
     final selectedType = await showDialog<TipoVenta>(
       context: currentContext,
       builder: (BuildContext dialogContext) {
@@ -86,37 +89,71 @@ class _MainShellScreenState extends State<MainShellScreen> {
       },
     );
 
-    if (!currentContext.mounted) return;
+    if (!currentContext.mounted) return; // Re-check mounted
     if (selectedType != null) {
       await _mostrarFormularioVenta(currentContext, selectedType);
     }
   }
   // --- Fin lógica Nueva Venta ---
 
-  // --- Lógica para Cerrar Sesión ---
+  // --- Lógica para Cerrar Sesión (Incluyendo diálogo de confirmación) ---
   Future<void> _logout() async {
     final BuildContext currentContext = context;
     final NavigatorState navigator = Navigator.of(currentContext);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
-    print('Sesión cerrada.');
-    if (!currentContext.mounted) return;
-    navigator.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const BienvenidaScreen()),
-      (Route<dynamic> route) => false,
+
+    // Diálogo de confirmación
+    final bool? confirmLogout = await showDialog<bool>(
+      context: currentContext,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Confirmar Cierre de Sesión'),
+          content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+            ),
+            TextButton(
+              child: const Text('Cerrar Sesión'),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+            ),
+          ],
+        );
+      },
     );
+
+    if (!currentContext.mounted) return; // Re-check mounted
+
+    if (confirmLogout == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('userId');
+      print('Sesión cerrada.');
+
+      if (!currentContext.mounted) return; // Re-check mounted
+
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const BienvenidaScreen()),
+        (Route<dynamic> route) => false,
+      );
+    } else {
+      print('Cierre de sesión cancelado.');
+    }
   }
   // --- Fin lógica Logout ---
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_screenTitles.elementAt(_selectedIndex)),
-        // El botón de menú para el Drawer se añade automáticamente
-      ),
+      // Asignamos la llave al Scaffold principal
+      key: _scaffoldKey,
+
+      // SIN AppBar aquí
+
+      // El Drawer sigue aquí
       drawer: Drawer(
-        // Menú lateral
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -125,7 +162,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 color: Theme.of(context).colorScheme.primaryContainer,
               ),
               child: Text(
-                'RegistraApp', // O nombre del negocio si lo tenemos
+                'RegistraApp', // O nombre del negocio
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimaryContainer,
                   fontSize: 24,
@@ -134,29 +171,31 @@ class _MainShellScreenState extends State<MainShellScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.home_outlined),
-              title: const Text('Inicio (Dashboard)'),
+              title: const Text('Inicio'),
+              selected: _selectedIndex == 0,
               onTap: () {
-                _onItemTapped(0); // Ir al índice 0
-                Navigator.pop(context); // Cerrar drawer
+                _onItemTapped(0);
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
-              title: const Text('Ventas del Día'),
+              title: const Text('Ventas'),
+              selected: _selectedIndex == 1,
               onTap: () {
-                _onItemTapped(1); // Ir al índice 1
-                Navigator.pop(context); // Cerrar drawer
+                _onItemTapped(1);
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Ajustes'),
+              selected: _selectedIndex == 2,
               onTap: () {
-                _onItemTapped(2); // Ir al índice 2
-                Navigator.pop(context); // Cerrar drawer
+                _onItemTapped(2);
+                Navigator.pop(context);
               },
             ),
-            // Puedes añadir más opciones aquí (ej. Historial, Acerca de)
             const Divider(),
             ListTile(
               leading: Icon(
@@ -172,14 +211,13 @@ class _MainShellScreenState extends State<MainShellScreen> {
           ],
         ),
       ),
-      // Usamos IndexedStack para mantener el estado de las pantallas hijas
+      // El body usa IndexedStack con la lista _widgetOptions inicializada en initState
       body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
-      // Barra de navegación inferior (Material 3)
+      // La NavigationBar sigue aquí
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: _onItemTapped,
-        indicatorColor:
-            Theme.of(context).colorScheme.inversePrimary, // Ajusta colores
-        selectedIndex: _selectedIndex,
+        indicatorColor: Theme.of(context).colorScheme.inversePrimary,
+        selectedIndex: _selectedIndex < 2 ? _selectedIndex : -1, // Ajustado
         destinations: const <Widget>[
           NavigationDestination(
             selectedIcon: Icon(Icons.home),
@@ -189,18 +227,12 @@ class _MainShellScreenState extends State<MainShellScreen> {
           NavigationDestination(
             selectedIcon: Icon(Icons.receipt_long),
             icon: Icon(Icons.receipt_long_outlined),
-            label: 'Ventas', // Etiqueta más corta
+            label: 'Ventas',
           ),
-          // --- AÑADE ESTE WIDGET ---
-          NavigationDestination(
-            selectedIcon: Icon(Icons.settings), // Icono seleccionado
-            icon: Icon(Icons.settings_outlined), // Icono normal
-            label: 'Ajustes', // Etiqueta
-          ),
-          // --- FIN WIDGET AÑADIDO ---
+          // Sin destino de Ajustes aquí
         ],
       ),
-      // Botón flotante para añadir venta
+      // El FAB sigue aquí
       floatingActionButton: FloatingActionButton(
         onPressed: _onAddVentaPressed,
         tooltip: 'Nueva Venta',

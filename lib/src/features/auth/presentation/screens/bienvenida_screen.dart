@@ -1,53 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:registraap/src/features/auth/presentation/screens/login_screen.dart'; // Ajusta si es necesario
+import 'package:registraap/src/features/auth/presentation/screens/login_screen.dart';
 import 'package:registraap/src/features/auth/presentation/screens/registro_screen.dart';
 
-// Usamos StatelessWidget porque esta pantalla solo mostrará contenido
-// y delegará las acciones (navegación) a los botones.
 class BienvenidaScreen extends StatelessWidget {
-  // Constructor estándar para Widgets en Flutter
   const BienvenidaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold nos da la estructura básica de una pantalla (AppBar, Body, etc.)
+    // Obtenemos el tema actual para acceder a los estilos definidos
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        // Un título simple para la barra superior
+        // El título es específico de la pantalla
         title: const Text('Bienvenido/a'),
-
-        // Centra el título (opcional, estético)
+        // Opcional: mantiene el centrado aquí, o defínelo en AppBarTheme
         centerTitle: true,
-        titleTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-        shadowColor: const Color.fromARGB(0, 0, 81, 255),
-        backgroundColor: const Color.fromARGB(0, 183, 0, 0),
+        // --- ELIMINADOS ---
+        // titleTextStyle: theme.textTheme.bodyLarge, // Usará el de AppBarTheme
+        // shadowColor: const Color.fromARGB(0, 0, 81, 255), // Usará el de AppBarTheme
+        // backgroundColor: const Color.fromARGB(0, 183, 0, 0), // Usará el de AppBarTheme
+        // --- FIN ELIMINADOS ---
       ),
-      // El cuerpo principal de la pantalla
       body: Center(
-        // Centra el contenido vertical y horizontalmente
         child: Padding(
-          // Añade un poco de espacio alrededor de los elementos
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.all(32.0), // Mantenemos el padding
           child: Column(
-            // Organiza los elementos en una columna vertical
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centra verticalmente la columna
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .stretch, // Estira los elementos horizontalmente
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // TODO: Añadir un logo o imagen bienvenida aquí si se desea
-              const Text(
-                'Tu caja movil', // O el nombre final de tu app
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              // TODO: Añadir logo
+              // --- Texto Principal con Estilo del Tema ---
+              Text(
+                'Tu caja móvil', // Corregido 'movil'
+                textAlign: TextAlign.center, // El centrado está bien aquí
+                // Usamos un estilo del TextTheme global
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight:
+                      FontWeight
+                          .bold, // Podemos añadir énfasis si el estilo base no lo tiene
+                  // El color vendrá del TextTheme por defecto o del ColorScheme
+                ),
+                // Antes: style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 40), // Espacio vertical
-              // Botón para ir a Iniciar Sesión
+              // --- FIN Texto Principal ---
+              const SizedBox(height: 40),
+              // --- Botón Iniciar Sesión (Sin style local, correcto) ---
               ElevatedButton(
-                // La acción que se ejecuta al presionar. Por ahora, vacía.
-                // TODO: Implementar navegación a LoginScreen
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -55,26 +54,22 @@ class BienvenidaScreen extends StatelessWidget {
                       builder: (context) => const LoginScreen(),
                     ),
                   );
-                  print('Botón Iniciar Sesión presionado'); // Mensaje temporal
                 },
+                // Sin style: hereda de elevatedButtonTheme
                 child: const Text('Iniciar Sesión'),
               ),
-              const SizedBox(height: 20), // Espacio vertical
-              // Botón para ir a Registrar Cuenta
+              const SizedBox(height: 20),
+              // --- Botón Registrar Cuenta (Sin style local, correcto) ---
               ElevatedButton(
-                // TODO: Implementar navegación a RegistroScreen
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const RegistroScreen(),
                     ),
-                  ); // Mensaje temporal
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  // Opcional: Estilo diferente para el botón secundario
-                  // backgroundColor: Colors.grey, // Ejemplo
-                ),
+                // Sin style: hereda de elevatedButtonTheme
                 child: const Text('Registrar Cuenta'),
               ),
             ],

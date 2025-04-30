@@ -54,10 +54,7 @@ class DetalleVentaScreen extends StatelessWidget {
         // Podríamos añadir un icono para el estado también si quisiéramos
         // Icon(Icons.flag_outlined, color: color),
         // const SizedBox(width: 8),
-        Text(
-          texto,
-          style: TextStyle(color: color, fontWeight: FontWeight.w500),
-        ),
+        Text(texto, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -184,12 +181,7 @@ class DetalleVentaScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 2),
                 if (customWidget != null)
                   customWidget

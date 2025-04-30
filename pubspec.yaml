@@ -30,7 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  # Asegúrate que flutter_localizations: esté al mismo nivel que flutter:
+  flutter_localizations:
+    # Asegúrate que sdk: flutter esté indentado con 2 espacios más que la línea anterior
+    sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -41,6 +44,7 @@ dependencies:
   path_provider: ^2.1.3     # Para encontrar rutas de almacenamiento
   path: ^1.9.0              # Utilidades para manejar rutas
   shared_preferences: ^2.5.3
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -54,7 +58,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   drift_dev: ^2.18.0   # Herramienta de generación de código (debe coincidir con drift)
   build_runner: ^2.4.11 # Corredor de generación de código Dart
-  intl: ^0.18.1
+  intl: ^0.19.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

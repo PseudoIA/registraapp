@@ -1,6 +1,8 @@
 // lib/src/core/data/local_database.dart
 
 // --- Imports necesarios ---
+import 'package:flutter/material.dart'
+    show DateTimeRange; // <--- ¡Modifica la línea así!
 import 'dart:io'; // Para Platform
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart'; // Para NativeDatabase
@@ -12,6 +14,7 @@ import 'package:sqlite3/sqlite3.dart'; // Bindings SQLite
 import 'package:registraap/src/core/data/models/usuario.dart'; // Asegúrate que la ruta es correcta
 import 'package:registraap/src/core/data/models/venta.dart'; // Asegúrate que la ruta es correcta
 import 'package:flutter/foundation.dart';
+
 // 2. LUEGO va la directiva part:
 part 'local_database.g.dart';
 
@@ -115,9 +118,61 @@ class AppDatabase extends _$AppDatabase {
     // Devuelve el ID auto-generado de la nueva venta
   }
 
+  // En la clase AppDatabase dentro de local_database.dart
+  Future<List<Venta>> getAllVentasUsuario(int userId) {
+    print("Buscando TODAS las ventas para userId: $userId");
+    return (select(ventas)
+          ..where((tbl) => tbl.idUsuario.equals(userId))
+          ..orderBy([
+            // Ordenar por fecha descendente
+            (tbl) => OrderingTerm(
+              expression: tbl.timestamp,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+        .get();
+  }
+
+  // --- NUEVA FUNCIÓN ---
+  // Obtiene ventas para un usuario dentro de un rango de fechas específico
+  Future<List<Venta>> getVentasPorRango(int userId, DateTimeRange rango) {
+    // El final del rango debe incluir todo el día final
+    final finDelRango = DateTime(
+      rango.end.year,
+      rango.end.month,
+      rango.end.day,
+      23,
+      59,
+      59,
+      999, // Asegura incluir todo el último día
+    );
+
+    print(
+      "Buscando ventas para userId: $userId entre ${rango.start} y $finDelRango",
+    );
+
+    return (select(ventas)
+          ..where((tbl) => tbl.idUsuario.equals(userId)) // Filtro por usuario
+          ..where(
+            (tbl) => tbl.timestamp.isBetween(
+              // Filtro por fecha
+              Constant(rango.start), // Inicio del rango
+              Constant(finDelRango), // Fin del rango (ajustado)
+            ),
+          )
+          ..orderBy([
+            // Ordenar por fecha descendente (más reciente primero)
+            (tbl) => OrderingTerm(
+              expression: tbl.timestamp,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+        .get();
+  }
+
   // --- Método para OBTENER todas las ventas de una fecha específica ---
   // Recibe un DateTime 'fecha' y devuelve una lista de objetos 'Venta' (generados por drift)
-  Future<List<Venta>> getVentasDelDia(DateTime fecha) {
+  Future<List<Venta>> getVentasDelDia(DateTime fecha, {required int userId}) {
     // Calcula el inicio y fin del día para la fecha dada
     final inicioDelDia = DateTime(
       fecha.year,
@@ -143,6 +198,9 @@ class AppDatabase extends _$AppDatabase {
               Constant(finDelDia),
             ), // <-- Envuelto en Constant()),
           ) // La columna 'timestamp' está entre inicio y fin del día
+          // Usamos 'tbl.idUsuario' (la columna definida en la tabla Ventas)
+          // y '.equals()' para compararla con el userId pasado como parámetro.
+          ..where((tbl) => tbl.idUsuario.equals(userId))
           ..orderBy([
             // Ordena los resultados
             // Ordena por timestamp descendente (la más reciente primero)

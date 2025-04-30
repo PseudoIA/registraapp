@@ -68,7 +68,6 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _emailController, // Vincula el controller
               decoration: const InputDecoration(
                 labelText: 'Email o Nombre de Usuario',
-                border: OutlineInputBorder(), // Añade un borde
               ),
               keyboardType:
                   TextInputType.emailAddress, // Sugiere teclado de email
@@ -77,10 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // Campo de texto para Contraseña
             TextField(
               controller: _passwordController, // Vincula el controller
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true, // Oculta el texto (para contraseñas)
             ),
             const SizedBox(height: 32), // Espacio más grande

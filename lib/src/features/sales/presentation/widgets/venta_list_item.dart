@@ -73,9 +73,7 @@ class VentaListItem extends StatelessWidget {
                   // Valor de la venta (más grande)
                   Text(
                     formatoMoneda.format(venta.valor),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4), // Pequeño espacio
                   // Subtítulo (Hora y Descripción)

@@ -177,7 +177,6 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Valor *',
                   prefixText: '\$ ',
-                  border: OutlineInputBorder(),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
@@ -190,7 +189,6 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                 controller: _descripcionController,
                 decoration: const InputDecoration(
                   labelText: 'Descripción (Opcional)',
-                  border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 maxLines: 1,
@@ -201,26 +199,17 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
               InputDecorator(
                 decoration: InputDecoration(
                   labelText: 'Tipo de Venta', // Etiqueta
-                  border: const OutlineInputBorder(),
                   // Estilo visual para que parezca deshabilitado/informativo
                   enabled: false, // Lo hace no interactivo visualmente
                   // Podrías añadir un color de fondo grisáceo si quieres más énfasis
                   // filled: true,
                   // fillColor: Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 16.0,
-                  ), // Ajusta padding si es necesario
                 ),
                 // El contenido es un widget Text que muestra el tipo
                 child: Text(
                   _tipoVentaToString(
                     widget.tipoVenta,
                   ), // Llama a la función helper
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    // Usa un estilo de texto apropiado
-                    color: Theme.of(context).disabledColor,
-                  ),
                 ),
               ),
 
@@ -251,7 +240,6 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                         )
                         : const Text('Guardar Venta'),
               ),
-              // Ya no necesitamos el botón "Cancelar" explícito aquí,
               // porque la AppBar tendrá el botón de "Atrás" para cerrar la pantalla.
             ],
           ),

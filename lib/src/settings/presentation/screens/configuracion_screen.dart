@@ -165,9 +165,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
             child: Text(
               // Podríamos usar este nombre en el AppBar de MainShellScreen en el futuro
               'Nombre actual: $_nombreGuardado',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.grey.shade700),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
 
@@ -177,7 +175,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
           decoration: const InputDecoration(
             labelText: 'Nombre del Establecimiento',
             hintText: 'Ej: Super Tienda La Esquina',
-            border: OutlineInputBorder(),
+
             prefixIcon: Icon(Icons.storefront_outlined), // Icono útil
           ),
           textCapitalization:
@@ -205,11 +203,6 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
                   )
                   : const Icon(Icons.save_alt_outlined), // Icono de guardar
           label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-            ), // Hacer botón más alto
-          ),
         ),
 
         // Espacio para futuras opciones...
