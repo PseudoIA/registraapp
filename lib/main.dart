@@ -11,6 +11,7 @@ import 'package:intl/date_symbol_data_local.dart'; // Para initializeDateFormatt
 import 'package:registraap/src/features/shell/presentation/screens/main_shell_screen.dart'; // Asegúrate que la ruta sea correcta
 import 'package:flutter_localizations/flutter_localizations.dart'; // Necesario para los delegates
 
+final ValueNotifier<String?> nombreNegocioNotifier = ValueNotifier(null);
 Future<void> main() async {
   // Asegura que los bindings de Flutter estén listos
   WidgetsFlutterBinding.ensureInitialized();

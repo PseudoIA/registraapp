@@ -40,10 +40,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
     _widgetOptions = <Widget>[
       // Asegúrate de que DashboardScreen acepte 'scaffoldKey'
       DashboardScreen(scaffoldKey: _scaffoldKey),
-      // TODO: Modifica ListaVentasDiariasScreen para aceptar y usar la llave
-      const ListaVentasDiariasScreen(/* scaffoldKey: _scaffoldKey */),
-      // TODO: Modifica ConfiguracionScreen para aceptar y usar la llave
-      const ConfiguracionScreen(/* scaffoldKey: _scaffoldKey */),
+      // --- MODIFICACIÓN AQUÍ ---
+      // Ahora pasamos la llave a ListaVentasDiariasScreen
+      // (Asegúrate que su constructor acepte 'required this.scaffoldKey')
+      ListaVentasDiariasScreen(scaffoldKey: _scaffoldKey),
+
+      // --- Y MODIFICACIÓN AQUÍ ---
+      // Ahora pasamos la llave a ConfiguracionScreen
+      // (Su constructor ya está modificado para aceptarla)
+      ConfiguracionScreen(scaffoldKey: _scaffoldKey),
+      // --- FIN MODIFICACIONES ---
     ];
   }
 
@@ -217,7 +223,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: _onItemTapped,
         indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-        selectedIndex: _selectedIndex < 2 ? _selectedIndex : -1, // Ajustado
+        selectedIndex: _selectedIndex < 2 ? _selectedIndex : 0, // Ajustado
         destinations: const <Widget>[
           NavigationDestination(
             selectedIcon: Icon(Icons.home),

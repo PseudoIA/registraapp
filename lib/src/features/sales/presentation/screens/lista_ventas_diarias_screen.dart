@@ -13,8 +13,10 @@ class ListaVentasDiariasScreen extends StatefulWidget {
   // Parámetros opcionales para reutilización futura (ej. desde Dashboard)
   final bool showAll;
   final DateTimeRange? initialDateRange;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   const ListaVentasDiariasScreen({
+    required this.scaffoldKey,
     super.key,
     this.showAll = false, // Por defecto, no muestra todas
     this.initialDateRange,
@@ -187,6 +189,17 @@ class _ListaVentasDiariasScreenState extends State<ListaVentasDiariasScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_buildAppBarTitle()), // Título dinámico
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              tooltip: 'Abrir menú',
+              onPressed: () {
+                widget.scaffoldKey.currentState?.openDrawer();
+              },
+            );
+          },
+        ),
         // El botón de atrás aparece si se navega con Navigator.push
         // leading: (widget.showAll || _selectedDateRange != null) ? BackButton() : null,
         actions: [

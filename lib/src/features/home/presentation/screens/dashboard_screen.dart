@@ -7,6 +7,7 @@ import 'package:registraap/src/core/data/models/local_database.dart'; // Acceso 
 import 'package:shared_preferences/shared_preferences.dart';
 // Importamos ListaVentasDiariasScreen para la navegación
 import 'package:registraap/src/features/sales/presentation/screens/lista_ventas_diarias_screen.dart';
+import 'package:registraap/main.dart';
 
 class DashboardScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -21,9 +22,12 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  static const String _keyNombreEstablecimiento = 'nombre_establecimiento';
   // --- State Variables ---
-  Future<List<Venta>>? _ventasHoyFuture;
-  Future<List<Venta>>? _ventasTotalFuture;
+  Future<List<Venta>>? _ventasHoyFuture; // <--- Para las ventas de hoy
+  Future<List<Venta>>? _ventasTotalFuture; // <--- Para el total histórico
+
+  String? _nombreNegocio;
   int? _userId; // Para no buscarlo repetidamente
 
   @override
@@ -31,6 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     // Obtener userId y cargar ambos resúmenes
     _initializeAndLoadData();
+    nombreNegocioNotifier.addListener(_actualizarNombreMostrado);
     // Listener para refrescar ambos resúmenes si hay cambios
     ventasUpdateNotifier.addListener(_onVentasUpdated);
     print("Listener de ventas añadido en DashboardScreen.");
@@ -39,8 +44,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void dispose() {
     ventasUpdateNotifier.removeListener(_onVentasUpdated);
+    nombreNegocioNotifier.removeListener(_actualizarNombreMostrado);
     print("Listener de ventas removido de DashboardScreen.");
     super.dispose();
+  }
+
+  // --- VUELVE A AÑADIR ESTA FUNCIÓN ---
+  void _actualizarNombreMostrado() {
+    if (mounted) {
+      print(
+        "(Dashboard) Listener: Recibido nuevo nombre: ${nombreNegocioNotifier.value}",
+      );
+      setState(() {
+        // Actualiza estado local directamente desde el notifier
+        // Asegura un valor por defecto si el notifier se vuelve null
+        _nombreNegocio =
+            (nombreNegocioNotifier.value != null &&
+                    nombreNegocioNotifier.value!.isNotEmpty)
+                ? nombreNegocioNotifier.value
+                : "tu Negocio"; // O "RegistraApp"
+      });
+    }
   }
 
   // Obtiene userId y carga los datos iniciales
@@ -48,7 +72,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return; // Check mounted after await
     _userId = prefs.getInt('userId');
-
+    // --- NUEVO: Cargar nombre del negocio ---
+    _nombreNegocio = prefs.getString(_keyNombreEstablecimiento);
+    print("Nombre negocio cargado: $_nombreNegocio");
+    // --- FIN NUEVO ---
     if (_userId == null) {
       print(
         "Error Crítico: userId no encontrado al inicializar DashboardScreen.",
@@ -91,12 +118,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("Construyendo DashboardScreen");
+    print("Construyendo DashboardScreen con nombre: $_nombreNegocio");
+
+    // --- Título dinámico ---
+    // Usamos un valor por defecto más genérico si _nombreNegocio aún es null en el primer build
+    String appBarTitle =
+        _nombreNegocio != null && _nombreNegocio!.isNotEmpty
+            ? 'Bienvenido a $_nombreNegocio'
+            : 'RegistraApp'; // O 'Inicio' o 'Bienvenido'
+    // --- Fin título ---
 
     // --- Añadimos Scaffold y AppBar ---
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inicio'),
+        title: Text(
+          appBarTitle,
+          style: const TextStyle(fontSize: 18), // Puedes ajustar el estilo
+          overflow:
+              TextOverflow.ellipsis, // Evita overflow si el nombre es largo
+        ),
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
@@ -142,7 +182,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   context,
                   MaterialPageRoute(
                     // Instancia normal, por defecto muestra hoy
-                    builder: (context) => const ListaVentasDiariasScreen(),
+                    builder:
+                        (context) => ListaVentasDiariasScreen(
+                          scaffoldKey: widget.scaffoldKey, // Pasar la llave
+                        ),
                   ),
                 );
               },
@@ -163,8 +206,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // Pasamos showAll: true al constructor
                     // (Asegúrate que ListaVentasDiariasScreen lo acepta)
                     builder:
-                        (context) =>
-                            const ListaVentasDiariasScreen(showAll: true),
+                        (context) => ListaVentasDiariasScreen(
+                          scaffoldKey: widget.scaffoldKey, // Pasar la llave
+                          showAll: true,
+                        ), // Indicar que muestre todas,
                   ),
                 );
               },
